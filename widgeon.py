@@ -70,9 +70,9 @@ def extract_ports_services(file_name):
 
 def generate_command(port, target_ip):
     commands = {
-        '22': f"hydra -L users.txt -P passwords.txt ssh://{target_ip}:22",
+        '22': f"hydra -l admin -P /usr/share/wordlists/rockyou.txt ssh://{target_ip}:22",
         '21': [
-            f"hydra -l admin -P passwords.txt ftp://{target_ip}:21",
+            f"hydra -l admin -P /usr/share/wordlists/rockyou.txt ftp://{target_ip}:21",
             f"ftp {target_ip}"
         ],
         '23': f"telnet {target_ip}",
@@ -80,7 +80,7 @@ def generate_command(port, target_ip):
         '25': f"smtp-user-enum -M VRFY -U users.txt -t {target_ip}",
         '53': [
             f"dnsrecon -r 127.0.0.0/24 -n {target_ip} -a -w -v -d results/dnsrecon/",
-            f"fierce -dns {target_ip} -wordlist /usr/share/wordlists/dnsmap.txt -threads 5"
+            f"fierce --domain {target_ip}"
         ],
         '80': [
             f"gobuster dir -w /usr/share/wordlists/seclists/Discovery/Web-Content/raft-medium-directories.txt -u http://{target_ip} -t 50 -x .txt,.php,.html,.bak,.old -o gobuster_dir.txt",
@@ -98,11 +98,11 @@ def generate_command(port, target_ip):
             f"onesixtyone {target_ip}"
         ],
         '389': [
-            f"ldapsearch -h {target_ip} -x -s base",
+            
             f"enum4linux -a {target_ip}"
         ],
         '445': [
-            f"smbclient -L //{target_ip}/",
+            f"smbmap -H {target_ip}",
             f"nmap -p 445 --script smb-enum* {target_ip}",
             f"enum4linux {target_ip}"
         ],
@@ -160,16 +160,16 @@ def ask_generate_commands(items,target_ip):
 
 def generate_commandz(port, target_ip):
     commands = {
-        'ssh': f"hydra -L users.txt -P passwords.txt ssh://{target_ip}:22",
+        'ssh': f"hydra -l admin -P /usr/share/wordlists/rockyou.txt  ssh://{target_ip}:22",
         'ftp': [
-            f"hydra -l admin -P passwords.txt ftp://{target_ip}:21",
+            f"hydra -l admin -P /usr/share/wordlists/rockyou.txt ftp://{target_ip}:21",
             f"ftp {target_ip}"
         ],
         'telnet': f"telnet {target_ip}",
         'smtp': f"smtp-user-enum -M VRFY -U users.txt -t {target_ip}",
         'dns': [
             f"dnsrecon -r 127.0.0.0/24 -n {target_ip} -a -w -v -d results/dnsrecon/",
-            f"fierce -dns {target_ip} -wordlist /usr/share/wordlists/dnsmap.txt -threads 5"
+            f"fierce --domain {target_ip}"
         ],
         'http': [
             f"gobuster dir -w /usr/share/wordlists/seclists/Discovery/Web-Content/raft-medium-directories.txt -u http://{target_ip} -t 50 -x .txt,.php,.html,.bak,.old -o gobuster_dir.txt",
@@ -182,11 +182,11 @@ def generate_commandz(port, target_ip):
             f"onesixtyone {target_ip}"
         ],
         'ldap': [
-            f"ldapsearch -h {target_ip} -x -s base",
+           
             f"enum4linux -a {target_ip}"
         ],
         'smb': [
-            f"smbclient -L //{target_ip}/",
+            f"smbmap -H {target_ip}",
             f"nmap -p 445 --script smb-enum* {target_ip}",
             f"enum4linux {target_ip}"
         ],
@@ -232,7 +232,7 @@ def ask_generate_commandz(items,target_ip):
     i = 0
     while os.path.exists(f"Results_{i}.txt"):
         i += 1
-    file_name = f"Wesults_{i}.txt"
+    file_name = f"ServiceResults_{i}.txt"
     open(file_name, 'a').close()
 
     with open(file_name, 'a') as f:
